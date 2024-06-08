@@ -1,5 +1,5 @@
 import mongoose  from "mongoose";
-
+// ---> database is created 
 const userSchema = new mongoose.Schema({
     username :{
         type : String , 
