@@ -13,10 +13,13 @@ export const signup = async  (req , res , next) => {
     const hashedpassword = bcryptjs.hashSync(password , 10)
     // ---> then we are creating a new user
     const  newUser = new user({username , email , password : hashedpassword})
-    // ---> then we are saving our user 
+    // ---> then we are saving our user
+    
+    // the intresting path is that you dont add the cookie over here you only add the cookie when you sign in and not when you create your account
     try{
        await newUser.save()
        res.status(201).json({"message" : "user created succesfully"})
+       res.redirect("/signin")
     } catch (error) {
         // ---> created a costum error middleware so that we dont have to write length things
         //res.status(500).json( error.message )

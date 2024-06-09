@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import {Link} from 'react-router-dom'
+import {Link , useNavigate } from 'react-router-dom'
 
 function SignUp() {
   const [formData , setFormData] = useState({})
   const [loading , setLoading] = useState(false)
   const [error , setError] = useState(false)
+  const navigate = useNavigate()
 
 
    function handleChange(e){
@@ -29,14 +30,15 @@ function SignUp() {
         return 
       }
       setError(false)
+      navigate('/sign-in')
     } catch (error) {
       setError(true)
       setLoading(false)
     }
   }
   return (
-    <div className='max-w-lg mx-auto p-3'>
-      <h1 className='text-center font-bold text-4xl mt-10'>SignUp</h1>
+    <div className='max-w-lg mx-auto p-3 font-mono'>
+      <h1 className='text-center font-bold text-4xl mt-10'>Create An Account</h1>
       <form onSubmit={handleSubmit} action="http://localhost:5000/api/users/login" method="POST" className='flex px-10 pt-10 gap-3 flex-col  '>
         <input className=' h-[70px] py-5 px-10 bg-slate-200 rounded-md ' type="text" name="username" placeholder="Username" onChange={handleChange} />
         <input className=' h-[70px] py-5 px-10 bg-slate-200 rounded-md ' type="text" name="email" placeholder="Email" onChange={handleChange} />
