@@ -14,7 +14,7 @@ mongoose.connect(process.env.MONGO).then(()=> console.log( "connected to db")).c
 app.use(express.json())
 app.use(express.urlencoded({extended: true})) 
 
-app.listen(5000, () => {
+app.listen(3000, () => {
     console.log('server is running on port 5000')
 })
 
