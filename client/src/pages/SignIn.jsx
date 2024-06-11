@@ -33,10 +33,10 @@ function SignIn() {
         dispatch(signInFailure(data))
         return 
       }
-      dispatch(signInSuccess())
+      dispatch(signInSuccess(data))
       navigate("/")
     } catch (error) {
-      dispatch(signInFailure(error.message))
+      dispatch(signInFailure(error))
       
     }
   }
