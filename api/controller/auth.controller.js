@@ -49,3 +49,28 @@ export const signin = async (req , res , next) => {
 }
 
 
+export const google = async (req , res , next) => {
+    const {name ,  email , photo} = req.body
+    try {
+        const Existinguser = await user.findOne({email})
+        if (Existinguser) {
+            const token = jwt.sign({id : Existinguser._id} , process.env.SECRET_KEY)
+            const {password: hashedpassword, ...others} = Existinguser._doc
+            const expiryDate = new Date(Date.now() + 3600000);
+            res.cookie('access-token' , token , {httpOnly : true , expires : expiryDate}).status(200).json(others)
+        } else {
+        const randomPassword = Math.random().toString(36).slice(-8)*Math.random().toString(36).slice(-8)
+        const hashedPassword = bcryptjs.hashSync(randomPassword , 10)
+        const username = name.split(" ").join("").toLowerCase() + Math.round(Math.random()*10000).toString()
+        const newUser = new user({username, email , password : hashedPassword , profilePicture : photo})
+        await newUser.save()
+        const token = jwt.sign({id : newUser._id} , process.env.SECRET_KEY)
+        const {password: hashedpassword, ...others} = newUser._doc
+        const expiryDate = new Date(Date.now() + 3600000);
+        res.cookie('access-token' , token , {httpOnly : true , expires : expiryDate}).status(200).json(others)
+    }
+} catch (error) {
+    next(error)
+    }
+}
+

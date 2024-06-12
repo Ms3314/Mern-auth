@@ -2,7 +2,7 @@ import { useState } from 'react'
 import {Link , useNavigate} from 'react-router-dom'
 import { signInFailure, signInStart, signInSuccess } from '../redux/user/user.slice'
 import {useDispatch, useSelector} from 'react-redux'
-
+import OAuth from '../components/OAuth'
 
 
 
@@ -47,6 +47,7 @@ function SignIn() {
         <input className=' h-[70px] py-5 px-10 bg-slate-200 rounded-md ' type="text" name="email" placeholder="Email" onChange={handleChange} />
         <input className=' h-[70px] py-5 px-10 bg-slate-200 rounded-md ' type="password" name="password" placeholder="Password" onChange={handleChange} />
         <button className=' disabled:opacity-80 p-4 bg-slate-800 text-white rounded-md hover:opacity-95' >{loading ? "Loading..." : "Submit"}</button>
+        <OAuth/>
       </form>
       <div className='px-10 pt-1 text-[14px] '>
         <span>Dont Have an account? </span>
