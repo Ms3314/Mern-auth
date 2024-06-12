@@ -1,10 +1,10 @@
 import express from 'express'
 import mongoose from 'mongoose'
 import dotenv from 'dotenv'
-import userRouter from './routes/user.route.js'
+import userRouter from './routes/user.route.js';
 import authRouter from './routes/auth.route.js'
 import cookieParser from 'cookie-parser'
-
+import { errorHandler  }from './utils/error.js'
 
 dotenv.config()
 const app = express()
@@ -22,15 +22,15 @@ app.use("/api/user" , userRouter)
 app.use("/api/auth" , authRouter)
 app.use(cookieParser())
 
+// using error handlers 
+app.use(errorHandler)
 // if we are using it like this , this can be used anywere in the program 
-app.use((err, req, res, next) =>{
-    // this error thing has the status or the other thing
-    const statuscode = err.statuscode || 500
-    const message = err.message || "interal server error"
-    return res.status(statuscode).json({
-        success: false,
-        message,
-        statuscode
-    })
-})
+
+app.use((err, req, res, next) => {
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || 'Internal Server Error',
+    statuscode: err.status || 500,
+  });
+});
 

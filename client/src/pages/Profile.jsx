@@ -2,19 +2,21 @@ import { useSelector } from "react-redux";
 import { useEffect, useRef, useState } from "react";
 import {app} from "../firebase.js";
 import { useDispatch } from "react-redux";
-import { updateUserStart , updateUserSuccess , updateUserFailure } from "../redux/user/user.slice.js";
+import { updateUserStart , updateUserSuccess , updateUserFailure , deleteUserFailure , deleteUserSuccess , deleteUserStart} from "../redux/user/user.slice.js";
 import { ref, uploadBytesResumable , getStorage, getDownloadURL } from "firebase/storage";
 
 
 function Profile() {
-  const dispatch = useDispatch()
-  const {currentUser} = useSelector((state) => state.user)  
+  const dispatch = useDispatch() 
   const [Picture , setPicture] = useState(undefined)
   const [imageError , setImageError] = useState(false)
   const [imagePercentage , setImagePercentage] = useState(0)
   const [Form , setForm] = useState({})
+  const [updateUserSuccess , setUpdateUserSuccess] = useState(false)
 
   console.log(imagePercentage)
+  const {currentUser , loading , error} = useSelector((state) => state.user)
+
   const fileRef = useRef(null)
   useEffect(()=> {
     if (Picture) {
@@ -60,8 +62,14 @@ function Profile() {
         body : JSON.stringify(Form)
       })
       const data =await res.json()
-      if(data.success === true) dispatch(updateUserSuccess(data))
-      else dispatch(updateUserFailure(data))
+      if(data.success === false) {
+        dispatch(updateUserFailure(data))
+      } else {
+        dispatch(updateUserSuccess(data))
+        setUpdateUserSuccess(true)
+      }
+      
+      
     } 
     catch (error) {
       dispatch(updateUserFailure(error))  
@@ -69,7 +77,26 @@ function Profile() {
 
   }
 
+  const handleDelete = async () => {
+    try {
+      dispatch(deleteUserStart())
+      const res = await fetch(`/api/user/delete/${currentUser._id}` , {
+        method : 'DELETE' , 
+        headers : {
+          'Content-Type' : 'application/json'
+        },
+      });
+      const data = res.json()
+      if(data.success === false) {
+        dispatch(deleteUserFailure(data))
+        return
+      }
+      dispatch(deleteUserSuccess(data))
+    } catch (error) {
+      dispatch(deleteUserFailure(error))
+    }
   
+    }
 
   return (
     <div className='max-w-lg mx-auto p-3 font-mono mb-10'>
@@ -87,12 +114,14 @@ function Profile() {
         <input onChange={handleChange} defaultValue={currentUser.username} className=' h-[70px] py-5 px-10 bg-slate-200 rounded-md ' type="text" id="username" placeholder="Username"/>
         <input onChange={handleChange} defaultValue={currentUser.email} className=' h-[70px] py-5 px-10 bg-slate-200 rounded-md ' type="text" id="email" placeholder="Email"/>
         <input onChange={handleChange} className=' h-[70px] py-5 px-10 bg-slate-200 rounded-md ' type="password" id="password" placeholder="Password" />
-        <button className=' disabled:opacity-80 p-4 bg-slate-800 text-white rounded-md hover:opacity-95' >Submit</button>
+        <button className=' disabled:opacity-80 p-4 bg-slate-800 text-white rounded-md hover:opacity-95' >{loading ? "Loading..." : "Update"}</button>
       </form>
       <div className="flex justify-between mt-5 px-10  ">
-        <span className="cursor-pointer text-red-700">Delete Account</span>
+        <span className="cursor-pointer text-red-700" onClick={handleDelete}>Delete Account</span>
         <span className="cursor-pointer text-red-700">Sign Out</span>
       </div>
+      <p className="text-red-700 font-extrabold text-center">{error && "Something went wrong"}</p>
+      <p>{setUpdateUserSuccess ? "User Updated Successfully" : ""}</p>
     </div>
   )
 }
