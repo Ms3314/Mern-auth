@@ -47,7 +47,7 @@ function Profile() {
 
     <form  action="http://localhost:5000/api/users/login" method="POST" className='flex px-10 pt-10 gap-3 flex-col  '>
       <input type="file" ref={fileRef} hidden accept="image/*" onChange={(e) => setPicture(e.target.files[0])}/>
-      <img src={currentUser.ProfilePicture} onClick={() => fileRef.current.click()} alt="a profile pic" className="w-[120px] cursor-pointer border-2  border-slate-800 h-[120px] object-cover rounded-full mx-auto mt-5" />
+      <img src={Form.profilePicture || currentUser.ProfilePicture} onClick={() => fileRef.current.click()} alt="a profile pic" className="w-[120px] cursor-pointer border-2  border-slate-800 h-[120px] object-cover rounded-full mx-auto mt-5" />
       {imageError ? (<p className=" text-md text-red-700 font-extrabold">Error Uploading Image (File size must be less than 2MB)</p>) 
       : imagePercentage > 0 && imagePercentage < 100 ? (<p className=" text-md text-blue-500 font-extrabold">{`The Image Uploaded is ${imagePercentage}% `}</p>)
       : imagePercentage === 100 ? (<p className=" text-md text-green-700 font-extrabold">Image Uploaded</p>)
