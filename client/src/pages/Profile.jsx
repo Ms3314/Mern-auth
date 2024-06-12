@@ -112,8 +112,9 @@ function Profile() {
 
     const handleSignOut = async () => {
       try {
-        await fetch(`/api/user/SignOut`)
-        dispatch(SignOutUserSuccess)
+        await fetch(`/api/auth/signOut`)
+        dispatch(SignOutUserSuccess())
+        Navigate('/')
       } catch (error) {
         console.log(error , "you hit the mark over here ")
         
@@ -144,7 +145,7 @@ function Profile() {
         <span className="cursor-pointer text-red-700" onClick={handleSignOut}>Sign Out</span>
       </div>
       <p className="text-red-700 font-extrabold text-center">{error && "Something went wrong"}</p>
-      <p>{Succesful_Update ? "User Updated Successfully" : ""}</p>
+      <p className="text-green-700 mt-2 font-extrabold text-center">{Succesful_Update ? "User Updated Successfully" : ""}</p>
     </div>
   )
 }

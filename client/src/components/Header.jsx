@@ -11,12 +11,12 @@ function Header() {
             <Link to='/'>
         <p className='text-2xl font-bold '>Auth app</p>
             </Link>
-        <ul className='flex space-x-4'>
+        <ul className='flex space-x-4  justify-center'>
             <Link to='/'>
-            <li>Home</li>
+            <li className="mt-2">Home</li>
             </Link>
             <Link to='/About'>
-            <li>About</li>
+            <li className="mt-2">About</li>
             </Link>
             <Link to='/Profile'>
             {
