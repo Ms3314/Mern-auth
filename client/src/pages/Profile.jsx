@@ -2,9 +2,9 @@ import { useSelector } from "react-redux";
 import { useEffect, useRef, useState } from "react";
 import {app} from "../firebase.js";
 import { useDispatch } from "react-redux";
-import { updateUserStart , updateUserSuccess , updateUserFailure , deleteUserFailure , deleteUserSuccess , deleteUserStart} from "../redux/user/user.slice.js";
+import { updateUserStart , updateUserSuccess , updateUserFailure , deleteUserFailure , deleteUserSuccess , deleteUserStart ,  SignOutUserSuccess } from "../redux/user/user.slice.js";
 import { ref, uploadBytesResumable , getStorage, getDownloadURL } from "firebase/storage";
-
+import { useNavigate } from "react-router-dom";
 
 function Profile() {
   const dispatch = useDispatch() 
@@ -12,9 +12,10 @@ function Profile() {
   const [imageError , setImageError] = useState(false)
   const [imagePercentage , setImagePercentage] = useState(0)
   const [Form , setForm] = useState({})
-  const [updateUserSuccess , setUpdateUserSuccess] = useState(false)
+  const [Succesful_Update , setSuccesful_Update] = useState(false)
+  const Navigate = useNavigate()
 
-  console.log(imagePercentage)
+  console.log(Form , "this is the form data that is being sent to the server")
   const {currentUser , loading , error} = useSelector((state) => state.user)
 
   const fileRef = useRef(null)
@@ -23,12 +24,15 @@ function Profile() {
       handleFileUpload(Picture)
     }
   },[Picture])
+
   const handleFileUpload = async (Picture) => {
     const storage = getStorage(app)
     const filename = new Date().getTime() + Picture.name
     const storageRef = ref(storage , filename)
     const uploadTask = uploadBytesResumable(storageRef , Picture)
-  
+    
+
+
     uploadTask.on(
       'stage_changed',
       (snapShot) => {
@@ -54,24 +58,28 @@ function Profile() {
     e.preventDefault()
     dispatch(updateUserStart())
     try {
-      const res = await fetch(`/api/user/update/${currentUser._id}` , {
-        method : 'POST' , 
-        headers : {
-          'Content-Type' : 'application/json'
+      console.log("entered the try statement in the handleSubmit ")
+      // here we fetch the api to give the data to the server in term of a post request
+      const res = await fetch(`/api/user/update/${currentUser._id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
         },
-        body : JSON.stringify(Form)
-      })
-      const data =await res.json()
+        body: JSON.stringify(Form)
+        // and we strigify the form data and then give it to the server 
+      });
+      const data = await res.json()
       if(data.success === false) {
-        dispatch(updateUserFailure(data))
+        console.log(data , "1 this is the data that failed to update due to some reasons")
+        dispatch(updateUserFailure(data)) 
       } else {
+        console.log(data , "this is the data has been updated ")
         dispatch(updateUserSuccess(data))
-        setUpdateUserSuccess(true)
+        setSuccesful_Update(true)
       }
-      
-      
     } 
     catch (error) {
+      console.log(error , "you hit the mark over here were you know the fetch is maybe the problem  ")
       dispatch(updateUserFailure(error))  
     }
 
@@ -88,16 +96,31 @@ function Profile() {
       });
       const data = res.json()
       if(data.success === false) {
+        console.log(data , "this is the data that failed to delete due to some reasons")
         dispatch(deleteUserFailure(data))
         return
       }
-      dispatch(deleteUserSuccess(data))
+      dispatch(deleteUserSuccess())
+      Navigate('/')
+      console.log(data , "and this lets me know that this can take give data to the serve and dang boi your account got deleted r") 
     } catch (error) {
+      console.log(error , "you hit the mark over here ")
       dispatch(deleteUserFailure(error))
     }
   
     }
 
+    const handleSignOut = async () => {
+      try {
+        await fetch(`/api/user/SignOut`)
+        dispatch(SignOutUserSuccess)
+      } catch (error) {
+        console.log(error , "you hit the mark over here ")
+        
+      }
+    
+      }
+  
   return (
     <div className='max-w-lg mx-auto p-3 font-mono mb-10'>
       <h1 className='text-center font-bold text-4xl mt-10'>Profile</h1>
@@ -113,15 +136,15 @@ function Profile() {
 
         <input onChange={handleChange} defaultValue={currentUser.username} className=' h-[70px] py-5 px-10 bg-slate-200 rounded-md ' type="text" id="username" placeholder="Username"/>
         <input onChange={handleChange} defaultValue={currentUser.email} className=' h-[70px] py-5 px-10 bg-slate-200 rounded-md ' type="text" id="email" placeholder="Email"/>
-        <input onChange={handleChange} className=' h-[70px] py-5 px-10 bg-slate-200 rounded-md ' type="password" id="password" placeholder="Password" />
+        <input onChange={handleChange} className=' h-[70px] py-5 px-10 bg-slate-200 rounded-md ' type="password" id="password" placeholder="password" />
         <button className=' disabled:opacity-80 p-4 bg-slate-800 text-white rounded-md hover:opacity-95' >{loading ? "Loading..." : "Update"}</button>
       </form>
       <div className="flex justify-between mt-5 px-10  ">
         <span className="cursor-pointer text-red-700" onClick={handleDelete}>Delete Account</span>
-        <span className="cursor-pointer text-red-700">Sign Out</span>
+        <span className="cursor-pointer text-red-700" onClick={handleSignOut}>Sign Out</span>
       </div>
       <p className="text-red-700 font-extrabold text-center">{error && "Something went wrong"}</p>
-      <p>{setUpdateUserSuccess ? "User Updated Successfully" : ""}</p>
+      <p>{Succesful_Update ? "User Updated Successfully" : ""}</p>
     </div>
   )
 }

@@ -1,36 +1,44 @@
-import express from 'express'
-import mongoose from 'mongoose'
-import dotenv from 'dotenv'
+import express from 'express';
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
 import userRouter from './routes/user.route.js';
-import authRouter from './routes/auth.route.js'
-import cookieParser from 'cookie-parser'
-import { errorHandler  }from './utils/error.js'
+import authRouter from './routes/auth.route.js';
+import cookieParser from 'cookie-parser';
+import { errorHandler } from './utils/error.js';
 
-dotenv.config()
-const app = express()
-mongoose.connect(process.env.MONGO).then(()=> console.log( "connected to db")).catch((err)=> console.log(err));
+dotenv.config();
+const app = express();
 
+// Middleware to parse cookies
+app.use(cookieParser());
 
-app.use(express.json())
-app.use(express.urlencoded({extended: true})) 
+// Middleware to parse JSON and URL-encoded request bodies
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-app.listen(3000, () => {
-    console.log('server is running on port 3000')
-})
+// Connect to the database
+mongoose.connect(process.env.MONGO)
+  .then(() => console.log("Connected to DB"))
+  .catch((err) => console.log(err));
 
-app.use("/api/user" , userRouter)
-app.use("/api/auth" , authRouter)
-app.use(cookieParser())
+// Define routes
+app.use("/api/user", userRouter);
+app.use("/api/auth", authRouter);
 
-// using error handlers 
-app.use(errorHandler)
-// if we are using it like this , this can be used anywere in the program 
+// Custom error handling middleware
+app.use(errorHandler);
 
+// General error handler for unhandled errors
 app.use((err, req, res, next) => {
   res.status(err.status || 500).json({
     success: false,
     message: err.message || 'Internal Server Error',
     statuscode: err.status || 500,
   });
+});
+
+// Start the server
+app.listen(3000, () => {
+  console.log('Server is running on port 3000');
 });
 

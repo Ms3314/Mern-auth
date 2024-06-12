@@ -39,7 +39,7 @@ export const signin = async (req , res , next) => {
         const {password: hashedpassword, ...others} = validUser._doc;
 
         const expirtDate = new Date(Date.now() + 3600000)
-        res.cookie('signin-token' , token , {httpOnly : true , expires : expirtDate}).status(200).json(others)
+        res.cookie('access_token', token , {httpOnly : true , expires : expirtDate}).status(200).json(others)
         //res.status(200).json("user Created")
     } catch (error) {
         next(errorHandler(900 , "bro you got something wrong here"))
@@ -55,11 +55,12 @@ export const google = async (req , res , next) => {
         const Existinguser = await user.findOne({email})
         if (Existinguser) {
             const token = jwt.sign({id : Existinguser._id} , process.env.SECRET_KEY)
-            const {password: hashedpassword, ...others} = Existinguser._doc
+            const {password , ...others} = Existinguser._doc
             const expiryDate = new Date(Date.now() + 3600000);
-            res.cookie('access-token' , token , {httpOnly : true , expires : expiryDate}).status(200).json(others)
+            console.log("the token for google OAuth is set")
+            res.cookie('access_token' , token , {httpOnly : true , expires : expiryDate}).status(200).json(others)
         } else {
-        const randomPassword = Math.random().toString(36).slice(-8)*Math.random().toString(36).slice(-8)
+        const randomPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8)
         const hashedPassword = bcryptjs.hashSync(randomPassword , 10)
         const username = name.split(" ").join("").toLowerCase() + Math.round(Math.random()*10000).toString()
         const newUser = new user({username, email , password : hashedPassword , profilePicture : photo})
@@ -67,10 +68,16 @@ export const google = async (req , res , next) => {
         const token = jwt.sign({id : newUser._id} , process.env.SECRET_KEY)
         const {password: hashedpassword, ...others} = newUser._doc
         const expiryDate = new Date(Date.now() + 3600000);
-        res.cookie('access-token' , token , {httpOnly : true , expires : expiryDate}).status(200).json(others)
+        res.cookie('access_token' , token , {httpOnly : true , expires : expiryDate}).status(200).json(others)
     }
 } catch (error) {
     next(error)
     }
+}
+
+export const signOut = async (req , res , next) => {
+    res.clearCookie('access_token').status(200).json("user sign out")
+    console.log("user sign out")
+
 }
 
