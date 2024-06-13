@@ -5,6 +5,9 @@ import userRouter from './routes/user.route.js';
 import authRouter from './routes/auth.route.js';
 import cookieParser from 'cookie-parser';
 import { errorHandler } from './utils/error.js';
+import path from 'path';
+
+
 
 dotenv.config();
 const app = express();
@@ -20,6 +23,14 @@ app.use(express.urlencoded({ extended: true }));
 mongoose.connect(process.env.MONGO)
   .then(() => console.log("Connected to DB"))
   .catch((err) => console.log(err));
+
+const __dirname = path.resolve()
+
+app.use(express.static(path.join(__dirname, '/client/dist')))
+// we are sending this path which ever route we go to 
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client' , 'dist', 'index.html'))
+})
 
 // Define routes
 app.use("/api/user", userRouter);

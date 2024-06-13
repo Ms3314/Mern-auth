@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom"
 import { useSelector } from "react-redux"
+import profilepicture from  "../assets/blankprofile-picture-973460_960_720.webp"
+
 
 
 function Header() {
@@ -13,16 +15,16 @@ function Header() {
             </Link>
         <ul className='flex space-x-4  justify-center'>
             <Link to='/'>
-            <li className="mt-2">Home</li>
+            <li className="">Home</li>
             </Link>
             <Link to='/About'>
-            <li className="mt-2">About</li>
+            <li className="">About</li>
             </Link>
             <Link to='/Profile'>
             {
               currentUser ? (
-                <img src={currentUser.ProfilePicture
-                } alt="a profile picture" className="w-10 h-10 rounded-full object-cover" />
+                <img src={currentUser.ProfilePicture || profilepicture
+                } alt="" className="w-10 h-10 border-2 bg-green-200 rounded-full object-cover" />
               ) : (
                 <li>Sign in</li>
               )
